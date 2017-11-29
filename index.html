@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge, chrome=1">
+  <meta http-equiv="Cache-Control" content="no-cache">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <script src="https://cdn.bootcss.com/vue/2.4.2/vue.min.js"></script>
+  <script type="text/javascript">
+    (function(value) {
+      var element = document.createElement('style');
+      document.head.appendChild(element);
+      element.type = 'text/css';
+      element.sheet.insertRule('html:root{font-size:0}', 0);
+      var sheet = element.sheet.cssRules[0].style;
+      var update = function() {
+        var winWidth = window.innerWidth
+        winWidth = winWidth >= 818 && 818 || winWidth <=400 && 400 || winWidth;
+        sheet.fontSize = Math.floor(winWidth / value * 625) + '%';
+      };
+      window.addEventListener('resize', update);
+      window.addEventListener('load', update);
+      window.addEventListener('orientationchange', update);
+      document.addEventListener('DOMContentLoaded', update);
+      document.addEventListener('readystatechange', update);
+    })(375);
+    var post = function(url, data, callback) {
+      var params = [];for (var i in data) {params.push(i + '=' + data[i])};
+      var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+      xhr.send(params.join('&'));
+      xhr.onreadystatechange = function() {if (xhr.readyState === 4 && xhr.status === 200) callback && callback(JSON.parse(xhr.responseText))};
+    };
+    var save = function(item, str) {
+      str = (typeof str === 'object') && JSON.stringify(str) || str;
+      localStorage.removeItem(item);
+      localStorage[item] = str;
+    };
+    var get = function(item) {
+      var value = localStorage[item];
+      if (value === undefined) return null;
+      if (value.indexOf('{') === 0 || value.indexOf('[') === 0) return JSON.parse(value);
+      return value;
+    };
+    var update = function(item, obj) {
+      var value = localStorage[item] || {};
+      var newVal = Object.assign(value, obj);
+      localStorage.removeItem(item);
+      localStorage[item] = JSON.stringify(newVal);
+    };
+  </script>
+  <style>
+    * {margin:0;padding:0;-webkit-margin-before: 0;-webkit-margin-after: 0;-webkit-tap-highlight-color: transparent;-webkit-appearance: none;}
+    body {font-size: .14rem;}
+    .cl{clear: both;}
+    .cl:after{visibility:hidden;display:block;content:"";clear:both;height:0;overflow:hidden;}
+    .fl {float: left;}
+    .pd15 {padding:.15rem;}
+    .s12 {font-size:.12rem;}
+    .grey {color:#999;}
+    .pdt10{padding-top: .1rem;}
+    .pdr20{padding-right: .2rem;}
+    .pdr5{padding-right: .05rem;}
+    .bdr{border-top:1px solid #dedede;}
+    .blue {color:#2cbcff;}
+    .pd20-0{padding:.2rem 0 0;}
+    .btn{width: .9rem;height:.2rem;line-height:.2rem;padding:0;font-size:.1rem;text-align:center;border:none;background: #2cbcff;color: #fff;border-radius: .02rem;}
+    .query-reset{padding: .1rem 0;width: 1rem;text-align: center;border-radius: .03rem;margin-bottom: .1rem;}
+    .toast {position: fixed;z-index: 2;}
+    .toast div{position: fixed;top: 0;left: 0;width:100%;height:100%;background:rgba(0,0,0,.1);}
+    .toast p{position:fixed;max-width:3rem;background:rgba(0,0,0,.8);padding:.03rem 0.06rem;border-radius:.03rem;left:50%;bottom:1rem;color:#fff;transform: translate3d(-50%, 50%, 0);}
+    .loading {position: fixed;left:50%;top:50%;transform: translate3d(-50%, 50%, 0);}
+    .loading svg{width:.32rem;height:.32rem;animation: loading 6s linear infinite;}
+    .list img {width: .6rem;font-size: .1rem;margin-right:.05rem;}
+    .fade-enter-active{animation: fadein .4s ease;}
+    .fade-leave-active{animation: fadeout .3s ease;}
+    @keyframes fadein{from{opacity:0}to{opacity: 1}}
+    @keyframes fadeout{from{opacity:1}to{opacity: 0}}
+    @keyframes loading{0%{transform: rotate(0deg);}100%{transform: rotate(360deg);}}
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div>
+      <div class="pd15">
+        <div class="btn" @click="fetchData">fetch page {{page}}</div>
+        <div v-for="li in list" class="list pdt10 bdt s12">
+          <a v-for="item in li.list" :href="item.url">
+            <img :src="item.src" :title="item.ratio" />
+          </a>
+        </div>
+      </div>
+      <transition name="fade">
+        <div v-show="toastShow" class="toast">
+          <div class="cover"></div>
+          <p class="s12">{{msgText}}</p>
+        </div>
+      </transition>
+      <div v-show="isSbmiting" class="loading">
+        <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1498542232823" class="icon" style="" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1001" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M512 0 512 0c19.2 0 32 12.8 32 32l0 134.4c0 19.2-12.8 32-32 32l0 0c-19.2 0-32-12.8-32-32L480 32C480 12.8 492.8 0 512 0L512 0 512 0zM512 825.6 512 825.6c19.2 0 32 12.8 32 32l0 134.4C544 1011.2 531.2 1024 512 1024l0 0c-19.2 0-32-12.8-32-32l0-134.4C480 838.4 492.8 825.6 512 825.6L512 825.6 512 825.6zM1024 512 1024 512c0 19.2-12.8 32-32 32l-134.4 0c-19.2 0-32-12.8-32-32l0 0c0-19.2 12.8-32 32-32l134.4 0C1011.2 480 1024 492.8 1024 512L1024 512 1024 512zM198.4 512 198.4 512c0 19.2-12.8 32-32 32L32 544C12.8 544 0 531.2 0 512l0 0c0-19.2 12.8-32 32-32l134.4 0C185.6 480 198.4 492.8 198.4 512L198.4 512 198.4 512zM953.6 256 953.6 256c6.4 12.8 6.4 32-12.8 44.8l-115.2 70.4c-12.8 6.4-32 6.4-44.8-12.8l0 0c-6.4-12.8-6.4-32 12.8-44.8l115.2-70.4C928 236.8 947.2 236.8 953.6 256L953.6 256 953.6 256zM243.2 665.6 243.2 665.6c6.4 12.8 6.4 32-12.8 44.8l-115.2 70.4c-12.8 6.4-32 6.4-44.8-12.8l0 0c-6.4-12.8-6.4-32 12.8-44.8l115.2-70.4C211.2 646.4 230.4 652.8 243.2 665.6L243.2 665.6 243.2 665.6zM768 70.4 768 70.4c12.8 6.4 19.2 25.6 12.8 44.8l-70.4 115.2c-6.4 12.8-25.6 19.2-44.8 12.8l0 0c-12.8-6.4-19.2-25.6-12.8-44.8l70.4-115.2C736 64 755.2 57.6 768 70.4L768 70.4 768 70.4zM358.4 780.8 358.4 780.8c12.8 6.4 19.2 25.6 12.8 44.8l-70.4 115.2C288 960 268.8 960 256 953.6l0 0c-12.8-6.4-19.2-25.6-12.8-44.8l70.4-115.2C320 774.4 339.2 774.4 358.4 780.8L358.4 780.8 358.4 780.8zM256 70.4 256 70.4C268.8 57.6 288 64 300.8 76.8l70.4 115.2c6.4 12.8 6.4 32-12.8 44.8l0 0C339.2 249.6 320 243.2 313.6 230.4L243.2 108.8C236.8 96 243.2 76.8 256 70.4L256 70.4 256 70.4zM665.6 780.8 665.6 780.8c12.8-6.4 32-6.4 44.8 12.8l70.4 115.2c6.4 12.8 6.4 32-12.8 44.8l0 0c-12.8 6.4-32 6.4-44.8-12.8l-70.4-115.2C646.4 806.4 652.8 787.2 665.6 780.8L665.6 780.8 665.6 780.8zM70.4 256 70.4 256c6.4-12.8 25.6-19.2 44.8-12.8l115.2 70.4C243.2 320 249.6 339.2 243.2 352l0 0C230.4 371.2 211.2 377.6 198.4 364.8L83.2 300.8C64 288 57.6 268.8 70.4 256L70.4 256 70.4 256zM780.8 665.6 780.8 665.6c6.4-12.8 25.6-19.2 44.8-12.8l115.2 70.4c12.8 6.4 19.2 25.6 12.8 44.8l0 0c-6.4 12.8-25.6 19.2-44.8 12.8l-115.2-70.4C780.8 704 774.4 684.8 780.8 665.6L780.8 665.6 780.8 665.6zM780.8 665.6" fill="#cdcdcd" p-id="1002"></path></svg>
+      </div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    var app = new Vue({
+      el: '#app',
+      data: {
+        isSbmiting: false,
+        toastShow: false,
+        msgText: '',
+        page: 1,
+        pageRange: [1, 84],
+        list: []
+      },
+      mounted: function() {
+        this.list = get('wallpaper_list') || [];
+      },
+      methods: {
+        toast: function(msg) {
+          this.msgText = msg;
+          this.toastShow = true;
+          var self = this;
+          setTimeout(function(){
+            self.toastShow = false;
+          }, 3000);
+        },
+        getList: function() {
+          var self = this;
+          if (self.isSbmiting) return;
+          if (self.page < self.pageRange[0] || self.page > self.pageRange[1]) return self.toast('no more');
+
+          self.isSbmiting = true;
+          post('/getList', {
+            page: self.page
+          }, function(ret) {
+            self.isSbmiting = false;
+
+            if (ret.status === 200) {
+              self.list.push(ret.data);
+              save('wallpaper_list', self.list);
+              self.page++;
+              self.getList();
+            } else {
+              self.toast(ret.msg);
+            }
+          });
+        },
+        fetchData: function() {
+          var self = this;
+          self.getList();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
