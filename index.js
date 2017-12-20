@@ -17,7 +17,7 @@ class wallpaper {
 			request({
 				url: 'https://www.macappstore.net/wallpaper/index' + index +'.html',
 			}, (err, response, body) => {
-				if (err) reject(err);
+				if (err || !body) return reject(err);
 				const $ = cheerio.load(body, {decodeEntities: false});
 				const perList = [];
 				$('.wrap.wallpaper li').each((i, item) => {

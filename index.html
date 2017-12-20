@@ -90,7 +90,7 @@
       <div class="pd15">
         <div class="btn" @click="fetchData">fetch page {{page}}</div>
         <div v-for="li in list" class="list pdt10 bdt s12">
-          <a v-for="item in li.list" :href="item.url">
+          <a v-for="item in li.list" :href="item.url" target="_blank">
             <img :src="item.src" :title="item.ratio" />
           </a>
         </div>
